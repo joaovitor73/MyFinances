@@ -12,13 +12,13 @@ class DespesasScreen extends StatefulWidget {
 class _DespesasScreenState extends State<DespesasScreen> {
   @override
   Widget build(BuildContext context) {
-    final despesasStoreService = Provider.of<DespesasStoreService>(context);
+    final despesasProvider = Provider.of<DespesasStoreService>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Finances'),
       ),
       body: StreamBuilder(
-          stream: despesasStoreService.getDespesas(),
+          stream: despesasProvider.getDespesas(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -37,7 +37,7 @@ class _DespesasScreenState extends State<DespesasScreen> {
                   trailing: IconButton(
                     icon: const Icon(Icons.delete),
                     onPressed: () {
-                      despesasStoreService.deleteDespesas(despesas[index].id);
+                      despesasProvider.deleteDespesas(id: despesas[index].id);
                     },
                   ),
                 );

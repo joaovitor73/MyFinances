@@ -38,6 +38,7 @@ dependencies:
   provider: ^6.1.2
   cloud_firestore: ^5.6.1
   flutter_speed_dial: ^7.0.0
+  fl_chart: ^0.70.2
 
 dev_dependencies:
   flutter_test:
