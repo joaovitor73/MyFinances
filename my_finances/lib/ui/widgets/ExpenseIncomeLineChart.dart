@@ -12,7 +12,7 @@ class ExpenseIncomeLineChart extends StatelessWidget {
   Widget build(BuildContext context) {
     return LineChart(
       LineChartData(
-        gridData: const FlGridData(show: true),
+        gridData: const FlGridData(show: false),
         titlesData: const FlTitlesData(show: true),
         borderData: FlBorderData(show: true),
         lineBarsData: [
@@ -32,20 +32,6 @@ class ExpenseIncomeLineChart extends StatelessWidget {
             belowBarData: BarAreaData(show: false),
           ),
         ],
-        lineTouchData: LineTouchData(
-          touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (touchedSpot) => Colors.blueAccent,
-          ),
-          touchCallback: (FlTouchEvent event, LineTouchResponse? response) {
-            if (!event.isInterestedForInteractions ||
-                response == null ||
-                response.lineBarSpots == null) {
-              return;
-            }
-            // Handle touch events here
-          },
-          handleBuiltInTouches: true,
-        ),
       ),
     );
   }

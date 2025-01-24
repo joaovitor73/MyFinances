@@ -26,8 +26,9 @@ class MySpeedDial extends StatelessWidget {
           label: 'Adicionar despesa',
           labelStyle: const TextStyle(fontSize: 18.0),
           onTap: () {
-            despesasProvider.addDespesas(
-                descricao: 'Despesa 1', valor: 100.0, data: '01/01/2021');
+            // despesasProvider.addDespesas(
+            // descricao: 'Despesa 1', valor: 100.0, data: '01/01/2021');
+            Navigator.pushNamed(context, '/add_despesas');
             //Navigator.pushNamed(context, '/list_despesas');
           },
         ),

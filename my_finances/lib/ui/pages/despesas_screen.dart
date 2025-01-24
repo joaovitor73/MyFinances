@@ -38,6 +38,7 @@ class _DespesasScreenState extends State<DespesasScreen> {
                     icon: const Icon(Icons.delete),
                     onPressed: () {
                       despesasProvider.deleteDespesas(id: despesas[index].id);
+                      print('Despesa deletada com sucesso!');
                     },
                   ),
                 );

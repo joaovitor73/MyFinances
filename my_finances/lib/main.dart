@@ -1,7 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:my_finances/ui/pages/AddDespesasScreen.dart';
 import 'package:my_finances/ui/pages/despesas_screen.dart';
 import 'package:my_finances/ui/pages/home.dart';
+import 'package:my_finances/ui/pages/signin_screen.dart';
+import 'package:my_finances/ui/pages/signup_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:my_finances/core/configure_providers.dart';
 
@@ -38,8 +41,11 @@ class App extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const Home(),
+        '/': (context) => const SigninScreen(),
+        '/signup': (context) => const SignupScreen(),
+        '/home': (context) => const Home(),
         '/list_despesas': (context) => const DespesasScreen(),
+        '/add_despesas': (context) => const AddDespesasScreen(),
       },
     );
   }

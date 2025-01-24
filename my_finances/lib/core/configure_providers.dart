@@ -1,3 +1,4 @@
+import 'package:my_finances/services/auth_service.dart';
 import 'package:my_finances/services/despesas_store_service.dart';
 import 'package:my_finances/services/receita_service.dart';
 import 'package:provider/provider.dart';
@@ -12,9 +13,11 @@ class ConfigureProviders {
     DespesasStoreService despesasStoreService = DespesasStoreService();
     ReceitaService receitaService =
         ReceitaService(despesas: despesasStoreService);
+    final authService = AuthService();
     return ConfigureProviders(providers: [
       Provider<DespesasStoreService>.value(value: despesasStoreService),
       Provider<ReceitaService>.value(value: receitaService),
+      Provider<AuthService>.value(value: authService),
     ]);
   }
 }

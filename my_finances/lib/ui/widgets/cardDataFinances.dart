@@ -11,12 +11,10 @@ class CardDataFinances extends StatelessWidget {
   final String title;
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Card(
-        child: ListTile(
-          title: Text('$title ${snapshot.data}'),
-          subtitle: const Text('R\$ 100,00'),
-        ),
+    return Card(
+      child: ListTile(
+        title: Text('$title ${snapshot.data}'),
+        subtitle: const Text('R\$ 100,00'),
       ),
     );
   }

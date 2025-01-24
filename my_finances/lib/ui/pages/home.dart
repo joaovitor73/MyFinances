@@ -43,10 +43,14 @@ class _HomeState extends State<Home> {
                 ),
                 Row(
                   children: [
-                    CardDataFinances(
-                        title: 'Total de Despesas: R\$ ', snapshot: snapshot),
-                    CardDataFinances(
-                        title: 'Total de Despesas: R\$ ', snapshot: snapshot),
+                    Expanded(
+                      child: CardDataFinances(
+                          title: 'Total de Despesas: R\$ ', snapshot: snapshot),
+                    ),
+                    Expanded(
+                      child: CardDataFinances(
+                          title: 'Total de Despesas: R\$ ', snapshot: snapshot),
+                    ),
                   ],
                 ),
                 const SizedBox(

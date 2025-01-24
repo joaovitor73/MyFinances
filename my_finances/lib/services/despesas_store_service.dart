@@ -1,26 +1,30 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
-final CollectionReference _mainCollection =
-    _firebaseFirestore.collection('despesas');
+import 'package:firebase_auth/firebase_auth.dart';
 
 class DespesasStoreService {
-  static String? userUid = "q4YgLe7PXPhomeb4owObyCOBcvq2";
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
-  Future<void> addDespesas(
-      {String? dataPagamento,
-      required String descricao,
-      required double valor,
-      required String data}) async {
+  final CollectionReference _mainCollection =
+      FirebaseFirestore.instance.collection('users');
+  String userUid = FirebaseAuth.instance.currentUser!.uid;
+
+  Future<void> addDespesas({
+    required String descricao,
+    required double valor,
+    required String data,
+    String? dataPagamento,
+  }) async {
+    final String userUid = _firebaseAuth.currentUser!.uid;
     try {
       DocumentReference documentReferencer =
           _mainCollection.doc(userUid).collection('despesas').doc();
 
       Map<String, dynamic> dados = <String, dynamic>{
-        "dataPagamento": dataPagamento,
         "descricao": descricao,
         "valor": valor,
         "data": data,
+        "dataPagamento": dataPagamento,
       };
 
       await documentReferencer
@@ -36,10 +40,18 @@ class DespesasStoreService {
 
   Future<void> deleteDespesas({required String id}) async {
     try {
-      await _firebaseFirestore.collection('despesas').doc(id).delete();
-      print('Despesa removida com sucesso!');
+      final String userUid = _firebaseAuth.currentUser!.uid;
+      DocumentReference documentReferencer =
+          _mainCollection.doc(userUid).collection('despesas').doc(id);
+
+      await documentReferencer
+          .delete()
+          .whenComplete(() => print("Despesa deletada do banco de dados"))
+          .catchError((e) => print(e));
+
+      print('Despesa deletada com sucesso!');
     } catch (e) {
-      print('Erro ao remover despesa: $e');
+      print('Erro ao deletar despesa: $e');
     }
   }
 
@@ -50,6 +62,7 @@ class DespesasStoreService {
       required String data,
       required String id}) async {
     try {
+      final String userUid = _firebaseAuth.currentUser!.uid;
       DocumentReference documentReferencer =
           _mainCollection.doc(userUid).collection('despesas').doc(id);
 
@@ -72,12 +85,15 @@ class DespesasStoreService {
   }
 
   Stream getDespesas() {
+    final String userUid = _firebaseAuth.currentUser!.uid;
     CollectionReference documentReferencer =
         _mainCollection.doc(userUid).collection('despesas');
+
     return documentReferencer.snapshots();
   }
 
   Stream<double> getTotalDespesas() {
+    final String userUid = _firebaseAuth.currentUser!.uid;
     CollectionReference documentReferencer =
         _mainCollection.doc(userUid).collection('despesas');
 
@@ -95,6 +111,7 @@ class DespesasStoreService {
   }
 
   Stream<double> getTotalDespesasMes() {
+    final String userUid = _firebaseAuth.currentUser!.uid;
     CollectionReference documentReferencer =
         _mainCollection.doc(userUid).collection('despesas');
     return documentReferencer.snapshots().map((snapshot) {
