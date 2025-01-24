@@ -22,55 +22,52 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(title: const Text('MyFinances')),
       body: Center(
-        child: StreamBuilder(
-          stream: receitaProvider.getTotalReceita(),
-          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-            if (snapshot.hasError) {
-              return const Text('Algo deu errado');
-            }
-
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
-            }
-
-            return Center(
-                child: Column(
-              children: [
-                SizedBox(
+          child: Column(
+        children: [
+          StreamBuilder<Object>(
+              stream: null,
+              builder: (context, snapshot) {
+                return SizedBox(
                   height: 70,
                   child: CardDataFinances(
                       title: 'Total de Despesas: R\$ ', snapshot: snapshot),
-                ),
-                Row(
-                  children: [
-                    Expanded(
+                );
+              }),
+          Row(
+            children: [
+              StreamBuilder(
+                  stream: receitaProvider.getTotalReceita(),
+                  builder: (context, snapshot) {
+                    return Expanded(
                       child: CardDataFinances(
                           title: 'Total de Despesas: R\$ ', snapshot: snapshot),
-                    ),
-                    Expanded(
+                    );
+                  }),
+              StreamBuilder<Object>(
+                  stream: null,
+                  builder: (context, snapshot) {
+                    return Expanded(
                       child: CardDataFinances(
                           title: 'Total de Despesas: R\$ ', snapshot: snapshot),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 300,
-                  child: ExpenseIncomeLineChart(
-                    expenses: [100, 200, 150, 80, 120],
-                    incomes: [150, 250, 100, 90, 130],
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/list_despesas');
-                  },
-                  child: const Text('Listar despesas'),
-                )
-              ],
-            ));
-          },
-        ),
-      ),
+                    );
+                  }),
+            ],
+          ),
+          const SizedBox(
+            height: 300,
+            child: ExpenseIncomeLineChart(
+              expenses: [100, 200, 150, 80, 120],
+              incomes: [150, 250, 100, 90, 130],
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/list_despesas');
+            },
+            child: const Text('Listar despesas'),
+          )
+        ],
+      )),
       floatingActionButton: MySpeedDial(despesasProvider: despesasProvider),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:my_finances/services/categoria_service.dart';
 import 'package:my_finances/services/despesas_store_service.dart';
 
 class MySpeedDial extends StatelessWidget {
@@ -29,6 +30,9 @@ class MySpeedDial extends StatelessWidget {
             // despesasProvider.addDespesas(
             // descricao: 'Despesa 1', valor: 100.0, data: '01/01/2021');
             Navigator.pushNamed(context, '/add_despesas');
+            CategoriaService categoriaService = CategoriaService();
+            categoriaService.adicionarCategorias();
+            print('Adicionar despesa');
             //Navigator.pushNamed(context, '/list_despesas');
           },
         ),

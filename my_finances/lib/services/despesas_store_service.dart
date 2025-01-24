@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class DespesasStoreService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
   final CollectionReference _mainCollection =
       FirebaseFirestore.instance.collection('users');
@@ -14,6 +13,7 @@ class DespesasStoreService {
     required double valor,
     required String data,
     String? dataPagamento,
+    required String categoria,
   }) async {
     final String userUid = _firebaseAuth.currentUser!.uid;
     try {
@@ -25,6 +25,7 @@ class DespesasStoreService {
         "valor": valor,
         "data": data,
         "dataPagamento": dataPagamento,
+        "categoria": categoria,
       };
 
       await documentReferencer
@@ -60,7 +61,8 @@ class DespesasStoreService {
       required String descricao,
       required double valor,
       required String data,
-      required String id}) async {
+      required String id,
+      required String categoria}) async {
     try {
       final String userUid = _firebaseAuth.currentUser!.uid;
       DocumentReference documentReferencer =
@@ -71,6 +73,7 @@ class DespesasStoreService {
         "descricao": descricao,
         "valor": valor,
         "data": data,
+        "categoria": categoria,
       };
 
       await documentReferencer
@@ -123,6 +126,26 @@ class DespesasStoreService {
         }
         DateTime data = DateTime.parse(doc['data']);
         if (data.month == DateTime.now().month) {
+          total += doc['valor'] ?? 0.0;
+        }
+      }
+      return total;
+    });
+  }
+
+  Stream<double> getTotalDespesasCategoria(String categoria) {
+    final String userUid = _firebaseAuth.currentUser!.uid;
+    CollectionReference documentReferencer =
+        _mainCollection.doc(userUid).collection('despesas');
+
+    return documentReferencer.snapshots().map((snapshot) {
+      double total = 0.0;
+
+      for (var doc in snapshot.docs) {
+        if (doc['data'] == null) {
+          continue;
+        }
+        if (doc['categoria'] == categoria) {
           total += doc['valor'] ?? 0.0;
         }
       }
