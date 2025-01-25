@@ -18,6 +18,23 @@ class _AddLimitCategoriaState extends State<AddLimitCategoria> {
     final limiteService = Provider.of<LimiteService>(context, listen: false);
 
     try {
+      String id = await limiteService.idCategoriaLimiteSeExiste(
+          categoria: _categoriaController.text);
+      if (id != '0') {
+        limiteService.sumLimite(
+            id: id, valor: double.parse(_limiteController.text));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Limite atualizado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        _limiteController.clear();
+        _categoriaController.clear();
+        setState(() {});
+        return;
+      }
+
       await limiteService.addLimite(
         limite: double.parse(_limiteController.text),
         categoria: _categoriaController.text,
@@ -28,9 +45,10 @@ class _AddLimitCategoriaState extends State<AddLimitCategoria> {
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.of(context).pop(); // Fecha a tela após adicionar
+      _limiteController.clear();
+      _categoriaController.clear();
+      setState(() {});
     } catch (e) {
-      // Mostra uma mensagem de erro caso algo dê errado
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Erro ao adicionar limite!')),
       );
@@ -39,8 +57,9 @@ class _AddLimitCategoriaState extends State<AddLimitCategoria> {
 
   @override
   Widget build(BuildContext context) {
-    final limiteService = Provider.of<LimiteService>(context);
-    final categoria = Provider.of<CategoriaService>(context);
+    final categoriaProvider = Provider.of<CategoriaService>(context);
+    final limiteProvider = Provider.of<LimiteService>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -68,7 +87,8 @@ class _AddLimitCategoriaState extends State<AddLimitCategoria> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  prefixIcon: const Icon(Icons.attach_money),
+                  prefixIcon:
+                      const Icon(Icons.attach_money, color: Colors.green),
                 ),
               ),
               const SizedBox(height: 16),
@@ -78,7 +98,7 @@ class _AddLimitCategoriaState extends State<AddLimitCategoria> {
               ),
               const SizedBox(height: 8),
               FutureBuilder(
-                future: categoria.obterCategoriasGastos(),
+                future: categoriaProvider.obterCategoriasGastos(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -103,6 +123,8 @@ class _AddLimitCategoriaState extends State<AddLimitCategoria> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      prefixIcon:
+                          const Icon(Icons.category, color: Colors.blue),
                       contentPadding:
                           const EdgeInsets.symmetric(horizontal: 16),
                     ),
@@ -112,7 +134,7 @@ class _AddLimitCategoriaState extends State<AddLimitCategoria> {
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: ElevatedButton.icon(
                   onPressed: _addLimitCategoria,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -120,11 +142,71 @@ class _AddLimitCategoriaState extends State<AddLimitCategoria> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
+                  icon: const Icon(Icons.add, color: Colors.white),
+                  label: const Text(
                     'Adicionar',
                     style: TextStyle(fontSize: 18),
                   ),
                 ),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Limites Adicionados',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              FutureBuilder(
+                future: limiteProvider.getLimites(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return const Text('Erro ao carregar limites.');
+                  }
+
+                  final limites = snapshot.data;
+                  if (limites!.isEmpty) {
+                    return const Text('Nenhum limite cadastrado.');
+                  }
+
+                  return Column(
+                    children: limites
+                        .map<Widget>((limite) => Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              child: ListTile(
+                                leading: const Icon(
+                                  Icons.monetization_on,
+                                  color: Colors.green,
+                                ),
+                                title: Text(limite['categoria']),
+                                subtitle: Text(
+                                  'R\$ ${limite['limite'].toStringAsFixed(2)}',
+                                ),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.delete,
+                                      color: Colors.red),
+                                  onPressed: () {
+                                    limiteProvider.deleteLimite(
+                                        id: limite['id']);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            'Limite deletado com sucesso!'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                    setState(() {});
+                                  },
+                                ),
+                              ),
+                            ))
+                        .toList(),
+                  );
+                },
               ),
             ],
           ),

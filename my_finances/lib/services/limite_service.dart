@@ -72,6 +72,47 @@ class LimiteService {
     }
   }
 
+  Future<String> idCategoriaLimiteSeExiste({required String categoria}) async {
+    try {
+      final String userUid = _firebaseAuth.currentUser!.uid;
+      QuerySnapshot querySnapshot = await _mainCollection
+          .doc(userUid)
+          .collection('limites')
+          .where('categoria', isEqualTo: categoria)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return querySnapshot.docs[0].id;
+      } else {
+        return '0';
+      }
+    } catch (e) {
+      print('Erro ao obter id do limite: $e');
+      return '0';
+    }
+  }
+
+  Future<void> sumLimite({required id, required double valor}) async {
+    try {
+      final String userUid = _firebaseAuth.currentUser!.uid;
+      DocumentReference documentReferencer =
+          _mainCollection.doc(userUid).collection('limites').doc(id);
+
+      Map<String, dynamic> dados = <String, dynamic>{
+        "limite": FieldValue.increment(valor),
+      };
+
+      await documentReferencer
+          .update(dados)
+          .whenComplete(() => print("Limite somado no banco de dados"))
+          .catchError((e) => print(e));
+
+      print('Limite somado com sucesso!');
+    } catch (e) {
+      print('Erro ao somar limite: $e');
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getLimites() async {
     try {
       final String userUid = _firebaseAuth.currentUser!.uid;
