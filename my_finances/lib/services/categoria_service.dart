@@ -106,4 +106,30 @@ class CategoriaService {
       return [];
     }
   }
+
+  Future<Map<String, double>> getTotalDespesasCategoria() async {
+    try {
+      QuerySnapshot querySnapshot =
+          await _firebaseFirestore.collection('despesas').get();
+
+      Map<String, double> totalDespesasCategoria = {};
+
+      querySnapshot.docs.forEach((doc) {
+        String categoria = doc['categoria'];
+        double valor = doc['valor'];
+
+        if (totalDespesasCategoria.containsKey(categoria)) {
+          totalDespesasCategoria[categoria] =
+              totalDespesasCategoria[categoria]! + valor;
+        } else {
+          totalDespesasCategoria[categoria] = valor;
+        }
+      });
+
+      return totalDespesasCategoria;
+    } catch (e) {
+      print("Erro ao obter total de despesas por categoria: $e");
+      return {};
+    }
+  }
 }

@@ -58,12 +58,20 @@ class _HomeState extends State<Home> {
                     }),
               ],
             ),
-            const SizedBox(
+            SizedBox(
               height: 300,
-              child: ExpenseIncomeLineChart(
-                expenses: [100, 200, 150, 80, 120],
-                incomes: [150, 250, 100, 90, 130],
-              ),
+              child: FutureBuilder(
+                  future: despesasProvider.getTotalDespesasMesUltimos3meses(),
+                  builder: (context, snapshot) {
+                    return ExpenseIncomeLineChart(
+                      expenses: snapshot.data ?? [10, 20, 30],
+                      incomes: [
+                        150,
+                        250,
+                        100,
+                      ],
+                    );
+                  }),
             ),
             ElevatedButton(
               onPressed: () {

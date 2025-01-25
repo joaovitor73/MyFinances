@@ -1,10 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:my_finances/ui/pages/add_despesas_screen.dart';
 import 'package:my_finances/ui/pages/add_limit_categoria.dart';
 import 'package:my_finances/ui/pages/despesas_screen.dart';
 import 'package:my_finances/ui/pages/home.dart';
+import 'package:my_finances/ui/pages/line_chart_screen.dart';
 import 'package:my_finances/ui/pages/signin_screen.dart';
 import 'package:my_finances/ui/pages/signup_screen.dart';
 import 'package:provider/provider.dart';
@@ -56,6 +58,7 @@ class App extends StatelessWidget {
         '/list_despesas': (context) => const DespesasScreen(),
         '/add_despesas': (context) => const AddDespesasScreen(),
         '/add_limit_categoria': (context) => const AddLimitCategoria(),
+        '/line_chart': (context) => LineChartScreen(),
       },
     );
   }

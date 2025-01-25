@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
+import 'package:my_finances/utils/calendar_utils.dart';
 
 class DespesasStoreService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -151,5 +153,32 @@ class DespesasStoreService {
       }
       return total;
     });
+  }
+
+  Future<List<double>> getTotalDespesasMesUltimos3meses() async {
+    final String userUid = _firebaseAuth.currentUser!.uid;
+    CollectionReference documentReferencer =
+        _mainCollection.doc(userUid).collection('despesas');
+
+    QuerySnapshot querySnapshot = await documentReferencer.get();
+
+    List<double> totalDespesas = [];
+
+    for (int i = 0; i < 3; i++) {
+      double total = 0.0;
+      for (var doc in querySnapshot.docs) {
+        if (doc['data'] == null) {
+          continue;
+        }
+        DateFormat format = DateFormat("dd-MM-yyyy");
+
+        DateTime data = format.parse(doc['data']);
+        if (data.month == CalendarUtils.getMesAnterior(i)) {
+          total += doc['valor'] ?? 0.0;
+        }
+      }
+      totalDespesas.add(total);
+    }
+    return totalDespesas.reversed.toList();
   }
 }
