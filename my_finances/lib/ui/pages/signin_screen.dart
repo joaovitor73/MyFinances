@@ -28,7 +28,7 @@ class _LoginScreenState extends State<SigninScreen> {
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.pushNamed(context, '/add_limit_categoria');
+      Navigator.pushNamed(context, '/home');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

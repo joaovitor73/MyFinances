@@ -113,6 +113,59 @@ class LimiteService {
     }
   }
 
+  Future<bool> valorDespesaMenorQueLimite(
+      {required double valor, required String categoria}) async {
+    try {
+      final String userUid = _firebaseAuth.currentUser!.uid;
+      QuerySnapshot querySnapshot = await _mainCollection
+          .doc(userUid)
+          .collection('limites')
+          .where('categoria', isEqualTo: categoria)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        print(querySnapshot.docs);
+        double limite = querySnapshot.docs[0]['limite'];
+        return valor <= limite;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      print('Erro ao obter limite: $e');
+      return false;
+    }
+  }
+
+  Future<double> limiteRestante({required String categoria}) async {
+    try {
+      final String userUid = _firebaseAuth.currentUser!.uid;
+      QuerySnapshot querySnapshot = await _mainCollection
+          .doc(userUid)
+          .collection('limites')
+          .where('categoria', isEqualTo: categoria)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        double limite = querySnapshot.docs[0]['limite'];
+        double totalDespesas = 0.0;
+        QuerySnapshot querySnapshotDespesas = await _mainCollection
+            .doc(userUid)
+            .collection('despesas')
+            .where('categoria', isEqualTo: categoria)
+            .get();
+        querySnapshotDespesas.docs.forEach((doc) {
+          totalDespesas += doc['valor'];
+        });
+        return limite - totalDespesas;
+      } else {
+        return 0.0;
+      }
+    } catch (e) {
+      print('Erro ao obter limite: $e');
+      return 0.0;
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getLimites() async {
     try {
       final String userUid = _firebaseAuth.currentUser!.uid;
