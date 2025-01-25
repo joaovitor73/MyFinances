@@ -135,6 +135,51 @@ class DespesasStoreService {
     });
   }
 
+  Stream<double> getTotalDespesasCategoriaMes(String categoria) {
+    final String userUid = _firebaseAuth.currentUser!.uid;
+    CollectionReference documentReferencer =
+        _mainCollection.doc(userUid).collection('despesas');
+
+    return documentReferencer.snapshots().map((snapshot) {
+      double total = 0.0;
+
+      for (var doc in snapshot.docs) {
+        if (doc['data'] == null) {
+          continue;
+        }
+        DateTime data = DateTime.parse(doc['data']);
+        if (data.month == DateTime.now().month &&
+            doc['categoria'] == categoria) {
+          total += doc['valor'] ?? 0.0;
+        }
+      }
+      return total;
+    });
+  }
+
+  Future<double> getTotalDespesasMesNumber(int mes) {
+    final String userUid = _firebaseAuth.currentUser!.uid;
+    CollectionReference documentReferencer =
+        _mainCollection.doc(userUid).collection('despesas');
+
+    return documentReferencer.get().then((querySnapshot) {
+      double total = 0.0;
+
+      for (var doc in querySnapshot.docs) {
+        if (doc['data'] == null) {
+          continue;
+        }
+        DateFormat format = DateFormat("dd-MM-yyyy");
+
+        DateTime data = format.parse(doc['data']);
+        if (data.month == mes) {
+          total += doc['valor'] ?? 0.0;
+        }
+      }
+      return total;
+    });
+  }
+
   Stream<double> getTotalDespesasCategoria(String categoria) {
     final String userUid = _firebaseAuth.currentUser!.uid;
     CollectionReference documentReferencer =
