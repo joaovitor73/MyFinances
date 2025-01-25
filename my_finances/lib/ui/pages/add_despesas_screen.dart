@@ -38,6 +38,12 @@ class _AddDespesasScreenState extends State<AddDespesasScreen> {
         data: _dataController.text,
         categoria: _categoriaController.text,
       );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Despesa adicionada com sucesso!'),
+          backgroundColor: Colors.green,
+        ),
+      );
       Navigator.of(context).pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -78,6 +84,17 @@ class _AddDespesasScreenState extends State<AddDespesasScreen> {
     final limiteRestante = await limiteProvider.limiteRestante(
       categoria: _categoriaController.text,
     );
+
+    final String id = await limiteProvider.idCategoriaLimiteSeExiste(
+      categoria: _categoriaController.text,
+    );
+
+    if (id == '0') {
+      _errorController.add(null);
+      _podeCriarDespesa = true;
+      //_errorController.add('Categoria não possui limite cadastrado');
+      return;
+    }
 
     if (limiteRestante < valor) {
       _errorController
