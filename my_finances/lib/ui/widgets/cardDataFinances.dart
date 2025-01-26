@@ -14,7 +14,6 @@ class CardDataFinances extends StatelessWidget {
     return Card(
       child: ListTile(
         title: Text('$title ${snapshot.data}'),
-        subtitle: const Text('R\$ 100,00'),
       ),
     );
   }

@@ -1,26 +1,30 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:my_finances/services/despesas_store_service.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart'; // Para salvar o arquivo
-import 'package:flutter_pdfview/flutter_pdfview.dart'; // Para exibir o PDF
-import 'package:open_file/open_file.dart'; // Para abrir o PDF
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:open_file/open_file.dart';
 import 'categoria_service.dart';
 import 'receita_service.dart';
 
 class PdfService {
   final CategoriaService categoriaService;
   final ReceitaService receitaService;
+  final DespesasStoreService despesasSerc = DespesasStoreService();
 
   PdfService({required this.categoriaService, required this.receitaService});
 
   Future<void> gerarRelatorio(BuildContext context) async {
     final pdf = pw.Document();
 
-    // Obter dados de receitas e categorias
     List<Map<String, dynamic>> receitas = await _obterReceitas();
+    List<Map<String, dynamic>> despesas = await _obterDespesas();
     Map<String, double> totalDespesasPorCategoria =
         await categoriaService.getTotalDespesasCategoria();
+    Map<String, double> totalReceitasPorCategoria =
+        await categoriaService.getTotalReceitasCategoria();
 
     // Criar cabeçalho do PDF
     pdf.addPage(pw.Page(
@@ -31,6 +35,7 @@ class PdfService {
                 style:
                     pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 20),
+
             // Tabela de Receitas
             pw.Text('Receitas',
                 style:
@@ -48,6 +53,23 @@ class PdfService {
               }).toList(),
             ),
             pw.SizedBox(height: 20),
+            pw.Text('Despesas',
+                style:
+                    pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+            pw.Table.fromTextArray(
+              headers: ['Descrição', 'Valor', 'Data', 'Categoria'],
+              data: despesas.map((receita) {
+                return [
+                  receita['descricao'],
+                  NumberFormat.simpleCurrency(locale: 'pt_BR')
+                      .format(receita['valor']),
+                  receita['data'],
+                  receita['categoria']
+                ];
+              }).toList(),
+            ),
+            pw.SizedBox(height: 20),
+
             // Tabela de Despesas por Categoria
             pw.Text('Despesas por Categoria',
                 style:
@@ -63,8 +85,35 @@ class PdfService {
               }).toList(),
             ),
             pw.SizedBox(height: 20),
-            // Total de Despesas e Receitas
-            _detalhesTotais(receitas, totalDespesasPorCategoria),
+
+            // Tabela de Receitas por Categoria
+            pw.Text('Receitas por Categoria',
+                style:
+                    pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+            pw.Table.fromTextArray(
+              headers: ['Categoria', 'Total Receita'],
+              data: totalReceitasPorCategoria.entries.map((entry) {
+                return [
+                  entry.key,
+                  NumberFormat.simpleCurrency(locale: 'pt_BR')
+                      .format(entry.value),
+                ];
+              }).toList(),
+            ),
+          ],
+        );
+      },
+    ));
+
+    pdf.addPage(pw.Page(
+      build: (pw.Context context) {
+        return pw.Column(
+          children: [
+            pw.Text('Estatísticas Financeiras',
+                style:
+                    pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 20),
+            _detalhesEstatisticos(receitas, totalDespesasPorCategoria),
           ],
         );
       },
@@ -84,17 +133,30 @@ class PdfService {
     final receitasSnapshot = await receitaService.getReceitas().first;
 
     for (var doc in receitasSnapshot.docs) {
-      receitas.add(doc.data());
+      receitas.add(doc.data() as Map<String, dynamic>);
     }
 
     return receitas;
   }
 
-  pw.Widget _detalhesTotais(List<Map<String, dynamic>> receitas,
+  Future<List<Map<String, dynamic>>> _obterDespesas() async {
+    List<Map<String, dynamic>> despesas = [];
+    final despesasSnapshot = await despesasSerc.getDespesas().first;
+
+    for (var doc in despesasSnapshot.docs) {
+      despesas.add(doc.data() as Map<String, dynamic>);
+    }
+
+    return despesas;
+  }
+
+  pw.Widget _detalhesEstatisticos(List<Map<String, dynamic>> receitas,
       Map<String, double> totalDespesasPorCategoria) {
     double totalReceitas = receitas.fold(0, (sum, item) => sum + item['valor']);
     double totalDespesas =
         totalDespesasPorCategoria.values.fold(0, (sum, item) => sum + item);
+    double saldo = totalReceitas - totalDespesas;
+    double percentualDespesas = (totalDespesas / totalReceitas) * 100;
 
     return pw.Column(
       children: [
@@ -105,10 +167,74 @@ class PdfService {
             'Total de Despesas: ${NumberFormat.simpleCurrency(locale: 'pt_BR').format(totalDespesas)}',
             style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
         pw.Text(
-            'Saldo: ${NumberFormat.simpleCurrency(locale: 'pt_BR').format(totalReceitas - totalDespesas)}',
+            'Saldo: ${NumberFormat.simpleCurrency(locale: 'pt_BR').format(saldo)}',
             style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+        pw.Text(
+            'Percentual de Despesas: ${percentualDespesas.toStringAsFixed(2)}%',
+            style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+        pw.SizedBox(height: 20),
+
+        // Estatísticas adicionais
+        pw.Text(
+            'Categoria com Maior Despesa: ${_categoriaMaiorDespesa(totalDespesasPorCategoria)}',
+            style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+        pw.Text(
+            'Categoria com Menor Despesa: ${_categoriaMenorDespesa(totalDespesasPorCategoria)}',
+            style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+
+        // Categoria com Maior Receita
+        pw.Text(
+            'Categoria com Maior Receita: ${_categoriaMaiorReceita(totalDespesasPorCategoria)}',
+            style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+        pw.Text(
+            'Categoria com Menor Receita: ${_categoriaMenorReceita(totalDespesasPorCategoria)}',
+            style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
       ],
     );
+  }
+
+  String _categoriaMaiorDespesa(Map<String, double> totalDespesasPorCategoria) {
+    if (totalDespesasPorCategoria.isEmpty) {
+      return 'Nenhuma categoria encontrada';
+    }
+
+    var categoriaMaior = totalDespesasPorCategoria.entries
+        .reduce((a, b) => a.value > b.value ? a : b);
+
+    return categoriaMaior.key;
+  }
+
+  String _categoriaMenorDespesa(Map<String, double> totalDespesasPorCategoria) {
+    if (totalDespesasPorCategoria.isEmpty) {
+      return 'Nenhuma categoria encontrada';
+    }
+
+    var categoriaMenor = totalDespesasPorCategoria.entries
+        .reduce((a, b) => a.value < b.value ? a : b);
+
+    return categoriaMenor.key;
+  }
+
+  String _categoriaMaiorReceita(Map<String, double> totalReceitasPorCategoria) {
+    if (totalReceitasPorCategoria.isEmpty) {
+      return 'Nenhuma categoria encontrada';
+    }
+
+    var categoriaMaior = totalReceitasPorCategoria.entries
+        .reduce((a, b) => a.value > b.value ? a : b);
+
+    return categoriaMaior.key;
+  }
+
+  String _categoriaMenorReceita(Map<String, double> totalReceitasPorCategoria) {
+    if (totalReceitasPorCategoria.isEmpty) {
+      return 'Nenhuma categoria encontrada';
+    }
+
+    var categoriaMenor = totalReceitasPorCategoria.entries
+        .reduce((a, b) => a.value < b.value ? a : b);
+
+    return categoriaMenor.key;
   }
 
   Future<String> _obterCaminhoArquivo() async {

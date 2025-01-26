@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
+final CollectionReference _mainCollection =
+    FirebaseFirestore.instance.collection('users');
+final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
 class CategoriaService {
   Future<void> adicionarCategorias() async {
@@ -109,26 +113,56 @@ class CategoriaService {
 
   Future<Map<String, double>> getTotalDespesasCategoria() async {
     try {
+      final String userUid = _firebaseAuth.currentUser!.uid;
       QuerySnapshot querySnapshot =
-          await _firebaseFirestore.collection('despesas').get();
+          await _mainCollection.doc(userUid).collection('despesas').get();
 
-      Map<String, double> totalDespesasCategoria = {};
+      Map<String, double> totalDespesasPorCategoria = {};
 
       querySnapshot.docs.forEach((doc) {
         String categoria = doc['categoria'];
         double valor = doc['valor'];
 
-        if (totalDespesasCategoria.containsKey(categoria)) {
-          totalDespesasCategoria[categoria] =
-              totalDespesasCategoria[categoria]! + valor;
+        if (totalDespesasPorCategoria.containsKey(categoria)) {
+          totalDespesasPorCategoria[categoria] =
+              totalDespesasPorCategoria[categoria]! + valor;
         } else {
-          totalDespesasCategoria[categoria] = valor;
+          totalDespesasPorCategoria[categoria] = valor;
         }
       });
 
-      return totalDespesasCategoria;
-    } catch (e) {
+      return totalDespesasPorCategoria;
+    } catch (e, stackTrace) {
       print("Erro ao obter total de despesas por categoria: $e");
+      print(stackTrace);
+      return {};
+    }
+  }
+
+  Future<Map<String, double>> getTotalReceitasCategoria() async {
+    try {
+      final String userUid = _firebaseAuth.currentUser!.uid;
+      QuerySnapshot querySnapshot =
+          await _mainCollection.doc(userUid).collection('receitas').get();
+
+      Map<String, double> totalReceitasPorCategoria = {};
+
+      querySnapshot.docs.forEach((doc) {
+        String categoria = doc['categoria'];
+        double valor = doc['valor'];
+
+        if (totalReceitasPorCategoria.containsKey(categoria)) {
+          totalReceitasPorCategoria[categoria] =
+              totalReceitasPorCategoria[categoria]! + valor;
+        } else {
+          totalReceitasPorCategoria[categoria] = valor;
+        }
+      });
+
+      return totalReceitasPorCategoria;
+    } catch (e, stackTrace) {
+      print("Erro ao obter total de receitas por categoria: $e");
+      print(stackTrace);
       return {};
     }
   }
