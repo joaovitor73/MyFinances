@@ -112,8 +112,12 @@ class _AddDespesasScreenState extends State<AddDespesasScreen> {
     final categoriaProvider = Provider.of<CategoriaService>(context);
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text('Adicionar Despesa',
-            style: TextStyle(color: Colors.white)),
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 22)),
         backgroundColor: Colors.red[900],
       ),
       body: Form(

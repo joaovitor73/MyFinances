@@ -61,8 +61,12 @@ class _AddReceitasScreenState extends State<AddReceitasScreen> {
     final categoriaProvider = Provider.of<CategoriaService>(context);
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text('Adicionar Receita',
-            style: TextStyle(color: Colors.white)),
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 22)),
         backgroundColor: Colors.green[700],
       ),
       body: Form(

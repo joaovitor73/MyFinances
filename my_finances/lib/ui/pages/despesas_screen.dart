@@ -18,36 +18,74 @@ class _DespesasScreenState extends State<DespesasScreen> {
       currentIndex: 1,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('My Finances'),
+          centerTitle: true,
+          title: const Text(
+            'Minhas Despesas',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+          ),
         ),
-        body: StreamBuilder(
-            stream: despesasProvider.getDespesas(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-
-              final despesas = snapshot.data!.docs;
-
-              return ListView.builder(
-                itemCount: despesas.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(despesas[index]['descricao']),
-                    subtitle: Text(despesas[index]['valor'].toString()),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () {
-                        despesasProvider.deleteDespesas(id: despesas[index].id);
-                        print('Despesa deletada com sucesso!');
-                      },
-                    ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: StreamBuilder(
+              stream: despesasProvider.getDespesas(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
                   );
-                },
-              );
-            }),
+                }
+
+                final despesas = snapshot.data!.docs;
+
+                return ListView.builder(
+                  itemCount: despesas.length,
+                  itemBuilder: (context, index) {
+                    final despesa = despesas[index];
+                    final descricao = despesa['descricao'] ?? 'Sem descrição';
+                    final valor = despesa['valor'] ?? 0.0;
+                    final tipo = despesa['categoria'] ??
+                        'Despesa'; // Supondo que tenha um campo para tipo (despesa ou receita)
+                    final cor = Colors.red;
+
+                    return Card(
+                      elevation: 5,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.all(16),
+                        leading: Icon(
+                          tipo == 'Despesa'
+                              ? Icons.remove_circle
+                              : Icons.add_circle,
+                          color: cor,
+                          size: 32,
+                        ),
+                        title: Text(
+                          descricao,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          'R\$ ${valor.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            color: cor,
+                            fontSize: 16,
+                          ),
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            despesasProvider.deleteDespesas(id: despesa.id);
+                            print('Despesa deletada com sucesso!');
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }),
+        ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:my_finances/services/receita_service.dart';
 import 'package:my_finances/ui/pages/base_screen.dart';
 import 'package:my_finances/ui/widgets/cardDataFinances.dart';
 import 'package:my_finances/ui/widgets/ExpenseIncomeLineChart.dart';
+import 'package:my_finances/ui/widgets/card_data_finances_total.dart';
 import 'package:my_finances/ui/widgets/mySpeedDial.dart';
 import 'package:provider/provider.dart';
 
@@ -22,6 +23,8 @@ class _HomeState extends State<Home> {
     super.didChangeDependencies();
     final despesasProvider = Provider.of<DespesasStoreService>(context);
     despesasProvider.emitirDespesas();
+    final receitaProvider = Provider.of<ReceitaService>(context);
+    receitaProvider.emitirReceitas();
   }
 
   @override
@@ -32,6 +35,7 @@ class _HomeState extends State<Home> {
       currentIndex: 0,
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           title: const Text(
             'MyFinances',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
@@ -42,6 +46,59 @@ class _HomeState extends State<Home> {
           child: ListView(
             children: [
               // Cards com informações financeiras
+              StreamBuilder(
+                  stream: despesasProvider.getDespesas(),
+                  builder: (context, snapshotDespesas) {
+                    if (snapshotDespesas.connectionState ==
+                        ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    }
+
+                    if (!snapshotDespesas.hasData ||
+                        snapshotDespesas.data == null) {
+                      return const Center(
+                          child: Text("Nenhuma despesa encontrada"));
+                    }
+
+                    // Extrair total de despesas (precisa somar todos os valores)
+                    double totalDespesas =
+                        snapshotDespesas.data!.docs.fold(0.0, (sum, doc) {
+                      var valor = doc['valor'] ?? 0.0;
+                      return sum + (valor is double ? valor : 0.0);
+                    });
+
+                    return StreamBuilder(
+                        stream: receitaProvider.getReceitas(),
+                        builder: (context, snapshotReceitas) {
+                          if (snapshotReceitas.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          }
+
+                          if (!snapshotReceitas.hasData ||
+                              snapshotReceitas.data == null) {
+                            return const Center(
+                                child: Text("Nenhuma receita encontrada"));
+                          }
+
+                          // Extrair total de receitas (precisa somar todos os valores)
+                          double totalReceitas =
+                              snapshotReceitas.data!.docs.fold(0.0, (sum, doc) {
+                            var valor = doc['valor'] ?? 0.0;
+                            return sum + (valor is double ? valor : 0.0);
+                          });
+
+                          // Calcular saldo
+                          double saldo = totalReceitas - totalDespesas;
+
+                          return CardDataFinancesTotal(
+                            totalReceitas: totalReceitas,
+                            totalDespesas: totalDespesas,
+                            saldo: saldo,
+                          );
+                        });
+                  }),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -70,9 +127,8 @@ class _HomeState extends State<Home> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 4),
 
-              // Gráfico de Despesas vs Receita
               SizedBox(
                 height: 300,
                 child: StreamBuilder(

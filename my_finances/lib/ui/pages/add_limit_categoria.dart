@@ -65,9 +65,11 @@ class _AddLimitCategoriaState extends State<AddLimitCategoria> {
       currentIndex: 2,
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           title: const Text(
             'Adicionar Limite',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
           ),
           backgroundColor: Colors.blue[900],
         ),

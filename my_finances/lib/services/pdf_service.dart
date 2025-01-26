@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:pdf/pdf.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart'; // Para salvar o arquivo
 import 'package:flutter_pdfview/flutter_pdfview.dart'; // Para exibir o PDF
@@ -145,7 +144,16 @@ class PdfViewerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Visualizar Relatório PDF')),
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text(
+          'Visualizar Relatório PDF',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+          ),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -155,21 +163,21 @@ class PdfViewerScreen extends StatelessWidget {
                 // Função para baixar o arquivo (abrir no visualizador de arquivos)
                 OpenFile.open(filePath);
               },
-              icon: Icon(Icons.download, color: Colors.white),
-              label: Text(
+              icon: const Icon(Icons.download, color: Colors.white),
+              label: const Text(
                 'Baixar PDF',
                 style: TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blueAccent, // Cor de fundo
-                minimumSize: Size(double.infinity, 50), // Largura total
+                minimumSize: const Size(double.infinity, 50), // Largura total
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                padding: EdgeInsets.symmetric(vertical: 16.0),
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: Card(
                 elevation: 8.0,
