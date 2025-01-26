@@ -71,11 +71,11 @@ class _HomeState extends State<Home> {
               // Gráfico de Despesas vs Receita
               SizedBox(
                 height: 300,
-                child: FutureBuilder(
-                  future: despesasProvider.getTotalDespesasMesUltimos3meses(),
+                child: StreamBuilder(
+                  stream: despesasProvider.getTotalDespesasMesUltimos3meses(),
                   builder: (context, snapshot) {
                     return ExpenseIncomeLineChart(
-                      expenses: snapshot.data ?? [10, 20, 30],
+                      expenses: snapshot.data ?? [0, 0, 0],
                       incomes: [150, 250, 100],
                     );
                   },
@@ -124,7 +124,7 @@ class _HomeState extends State<Home> {
                           double total = receita - despesas;
 
                           return Container(
-                            padding: const EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.all(8.0),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
                             ),

@@ -38,6 +38,7 @@ class _AddDespesasScreenState extends State<AddDespesasScreen> {
         data: _dataController.text,
         categoria: _categoriaController.text,
       );
+      setState(() {});
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Despesa adicionada com sucesso!'),
@@ -121,7 +122,7 @@ class _AddDespesasScreenState extends State<AddDespesasScreen> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              _buildInputField(
+              /* _buildInputField(
                 controller: _dataPagamentoController,
                 label: 'Data Pagamento',
                 icon: Icons.date_range,
@@ -131,7 +132,7 @@ class _AddDespesasScreenState extends State<AddDespesasScreen> {
                   }
                   return null;
                 },
-              ),
+              ),*/
               const SizedBox(height: 16),
               _buildInputField(
                 controller: _descricaoController,
@@ -223,11 +224,9 @@ class _AddDespesasScreenState extends State<AddDespesasScreen> {
                 onPressed: _addDespesas,
                 style: ElevatedButton.styleFrom(
                   // // primary: Colors.red[900], // Define o color do botão
-                  minimumSize: const Size(
-                      double.infinity, 50), // Largura máxima e altura ajustada
+                  minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(8), // Arredondamento dos cantos
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
                 child: const Text(

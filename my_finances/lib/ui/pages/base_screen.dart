@@ -18,7 +18,6 @@ class _BaseScreenState extends State<BaseScreen> {
   final List<String> _routes = [
     '/home',
     '/list_despesas',
-    '/add_despesas',
     '/add_limit_categoria',
   ];
 
@@ -43,10 +42,6 @@ class _BaseScreenState extends State<BaseScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
             label: 'Despesas',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add),
-            label: 'Adicionar Despesas',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.category),

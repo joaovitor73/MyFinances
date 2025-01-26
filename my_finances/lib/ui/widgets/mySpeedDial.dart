@@ -3,7 +3,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:my_finances/services/categoria_service.dart';
 import 'package:my_finances/services/despesas_store_service.dart';
 
-class MySpeedDial extends StatelessWidget {
+class MySpeedDial extends StatefulWidget {
   const MySpeedDial({
     super.key,
     required this.despesasProvider,
@@ -11,6 +11,11 @@ class MySpeedDial extends StatelessWidget {
 
   final DespesasStoreService despesasProvider;
 
+  @override
+  State<MySpeedDial> createState() => _MySpeedDialState();
+}
+
+class _MySpeedDialState extends State<MySpeedDial> {
   @override
   Widget build(BuildContext context) {
     return SpeedDial(
@@ -29,7 +34,14 @@ class MySpeedDial extends StatelessWidget {
           onTap: () {
             // despesasProvider.addDespesas(
             // descricao: 'Despesa 1', valor: 100.0, data: '01/01/2021');
-            Navigator.pushNamed(context, '/add_despesas');
+            Navigator.pushNamed(context, '/add_despesas').then((value) {
+              if (value != null && value == true) {
+                // Atualiza o estado da tela inicial, forçando a reconstrução
+                setState(() {
+                  widget.despesasProvider.getTotalDespesasMesUltimos3meses();
+                });
+              }
+            });
             CategoriaService categoriaService = CategoriaService();
             categoriaService.adicionarCategorias();
             print('Adicionar despesa');

@@ -6,7 +6,7 @@ class LimiteService {
 
   final CollectionReference _mainCollection =
       FirebaseFirestore.instance.collection('users');
-  String userUid = FirebaseAuth.instance.currentUser!.uid;
+  // String userUid = FirebaseAuth.instance.currentUser!.uid;
 
   Future<void> addLimite({
     required double limite,

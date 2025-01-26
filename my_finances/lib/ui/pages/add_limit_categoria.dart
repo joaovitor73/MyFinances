@@ -62,7 +62,7 @@ class _AddLimitCategoriaState extends State<AddLimitCategoria> {
     final limiteProvider = Provider.of<LimiteService>(context);
 
     return BaseScreen(
-      currentIndex: 3,
+      currentIndex: 2,
       child: Scaffold(
         appBar: AppBar(
           title: const Text(
