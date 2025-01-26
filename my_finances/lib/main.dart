@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:my_finances/ui/pages/add_despesas_screen.dart';
 import 'package:my_finances/ui/pages/add_limit_categoria.dart';
+import 'package:my_finances/ui/pages/add_receitas_screen.dart';
 import 'package:my_finances/ui/pages/despesas_screen.dart';
 import 'package:my_finances/ui/pages/home.dart';
 import 'package:my_finances/ui/pages/line_chart_screen.dart';
@@ -59,6 +60,7 @@ class App extends StatelessWidget {
         '/add_despesas': (context) => const AddDespesasScreen(),
         '/add_limit_categoria': (context) => const AddLimitCategoria(),
         '/line_chart': (context) => LineChartScreen(),
+        '/add_receitas': (context) => const AddReceitasScreen(),
       },
     );
   }

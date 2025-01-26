@@ -12,7 +12,6 @@ android {
     namespace = "com.example.my_finances"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = 23
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8

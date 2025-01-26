@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:my_finances/services/categoria_service.dart';
 import 'package:my_finances/services/despesas_store_service.dart';
 import 'package:my_finances/services/receita_service.dart';
 import 'package:my_finances/ui/pages/base_screen.dart';
@@ -19,11 +18,16 @@ class _HomeState extends State<Home> {
   int _currentMonthIndex = DateTime.now().month - 1;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final despesasProvider = Provider.of<DespesasStoreService>(context);
+    despesasProvider.emitirDespesas();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final despesasProvider = Provider.of<DespesasStoreService>(context);
     final receitaProvider = Provider.of<ReceitaService>(context);
-    final categoriaP = Provider.of<CategoriaService>(context);
-
     return BaseScreen(
       currentIndex: 0,
       child: Scaffold(
@@ -43,7 +47,7 @@ class _HomeState extends State<Home> {
                 children: [
                   Expanded(
                     child: StreamBuilder(
-                      stream: receitaProvider.getTotalReceita(),
+                      stream: receitaProvider.getTotalReceitas(),
                       builder: (context, snapshot) {
                         return CardDataFinances(
                           title: 'Total de Receita: R\$ ',
@@ -73,14 +77,26 @@ class _HomeState extends State<Home> {
                 height: 300,
                 child: StreamBuilder(
                   stream: despesasProvider.getTotalDespesasMesUltimos3meses(),
-                  builder: (context, snapshot) {
-                    return ExpenseIncomeLineChart(
-                      expenses: snapshot.data ?? [0, 0, 0],
-                      incomes: [150, 250, 100],
+                  builder: (context, snapshotDespesas) {
+                    return StreamBuilder(
+                      stream:
+                          receitaProvider.getTotalReceitasMesUltimos3meses(),
+                      builder: (context, snapshotReceitas) {
+                        List<double> despesas =
+                            snapshotDespesas.data ?? [0, 0, 0];
+                        List<double> receitas =
+                            snapshotReceitas.data ?? [0, 0, 0];
+
+                        return ExpenseIncomeLineChart(
+                          expenses: despesas,
+                          incomes: receitas,
+                        );
+                      },
                     );
                   },
                 ),
               ),
+
               const SizedBox(height: 16),
 
               // Card com gastos por mês rolável horizontalmente
@@ -104,8 +120,8 @@ class _HomeState extends State<Home> {
                         future: Future.wait([
                           despesasProvider
                               .getTotalDespesasMesNumber(_currentMonthIndex),
-                          despesasProvider
-                              .getTotalDespesasMesNumber(_currentMonthIndex),
+                          receitaProvider
+                              .getTotalReceitasMesNumber(_currentMonthIndex),
                         ]),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==

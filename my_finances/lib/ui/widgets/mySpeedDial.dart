@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:my_finances/services/categoria_service.dart';
 import 'package:my_finances/services/despesas_store_service.dart';
+import 'package:my_finances/services/pdf_service.dart';
+import 'package:provider/provider.dart';
 
 class MySpeedDial extends StatefulWidget {
   const MySpeedDial({
@@ -16,6 +18,18 @@ class MySpeedDial extends StatefulWidget {
 }
 
 class _MySpeedDialState extends State<MySpeedDial> {
+  void _gerarRelatorioPdf(BuildContext context) async {
+    final gerarPdf =
+        Provider.of<PdfService>(context, listen: false); // Obtém o PdfService
+    await gerarPdf
+        .gerarRelatorio(context); // Chama o método para gerar o relatório
+
+    // Exibe um SnackBar para o usuário informando que o PDF foi gerado com sucesso
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Relatório PDF gerado com sucesso!')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SpeedDial(
@@ -32,16 +46,7 @@ class _MySpeedDialState extends State<MySpeedDial> {
           label: 'Adicionar despesa',
           labelStyle: const TextStyle(fontSize: 18.0),
           onTap: () {
-            // despesasProvider.addDespesas(
-            // descricao: 'Despesa 1', valor: 100.0, data: '01/01/2021');
-            Navigator.pushNamed(context, '/add_despesas').then((value) {
-              if (value != null && value == true) {
-                // Atualiza o estado da tela inicial, forçando a reconstrução
-                setState(() {
-                  widget.despesasProvider.getTotalDespesasMesUltimos3meses();
-                });
-              }
-            });
+            Navigator.pushNamed(context, '/add_despesas');
             CategoriaService categoriaService = CategoriaService();
             categoriaService.adicionarCategorias();
             print('Adicionar despesa');
@@ -49,14 +54,27 @@ class _MySpeedDialState extends State<MySpeedDial> {
           },
         ),
         SpeedDialChild(
-          child: const Icon(Icons.remove),
-          backgroundColor: Colors.blue,
-          label: 'Remover despesa',
+          child: const Icon(Icons.add),
+          backgroundColor: Colors.green,
+          label: 'Adicionar receitas',
           labelStyle: const TextStyle(fontSize: 18.0),
           onTap: () {
-            Navigator.pushNamed(context, '/list_despesas');
+            Navigator.pushNamed(context, '/add_receitas');
+            print('Adicionar receita');
+            //Navigator.pushNamed(context, '/list_despesas');
           },
         ),
+        SpeedDialChild(
+          child: const Icon(Icons.picture_as_pdf),
+          backgroundColor: Colors.blue,
+          label: 'Gerar Relatório PDF',
+          labelStyle: const TextStyle(fontSize: 18.0),
+          onTap: () {
+            _gerarRelatorioPdf(context);
+            print('Gerar Relatório PDF');
+          },
+        ),
+        // Adicione outros SpeedDialChild se necessário
       ],
     );
   }

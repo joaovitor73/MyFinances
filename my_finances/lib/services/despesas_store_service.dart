@@ -37,7 +37,7 @@ class DespesasStoreService {
           .catchError((e) => print(e));
 
       print('Despesa adicionada com sucesso!');
-      _emitirDespesas();
+      emitirDespesas();
     } catch (e) {
       print('Erro ao adicionar despesa: $e');
     }
@@ -55,7 +55,7 @@ class DespesasStoreService {
           .catchError((e) => print(e));
 
       print('Despesa deletada com sucesso!');
-      _emitirDespesas();
+      emitirDespesas();
     } catch (e) {
       print('Erro ao deletar despesa: $e');
     }
@@ -210,7 +210,7 @@ class DespesasStoreService {
     return _despesasStreamController.stream;
   }
 
-  Future<void> _emitirDespesas() async {
+  Future<void> emitirDespesas() async {
     final String userUid = _firebaseAuth.currentUser!.uid;
     CollectionReference documentReferencer =
         _mainCollection.doc(userUid).collection('despesas');
