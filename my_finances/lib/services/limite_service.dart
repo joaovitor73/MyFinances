@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:my_finances/services/notification_service.dart';
 
 class LimiteService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -7,6 +8,12 @@ class LimiteService {
   final CollectionReference _mainCollection =
       FirebaseFirestore.instance.collection('users');
   // String userUid = FirebaseAuth.instance.currentUser!.uid;
+
+  final NotificationService _notificationService = NotificationService();
+
+  Future<void> initNotifications() async {
+    await _notificationService.init();
+  }
 
   Future<void> addLimite({
     required double limite,
@@ -156,6 +163,7 @@ class LimiteService {
         querySnapshotDespesas.docs.forEach((doc) {
           totalDespesas += doc['valor'];
         });
+
         return limite - totalDespesas;
       } else {
         return 0.0;
@@ -163,6 +171,75 @@ class LimiteService {
     } catch (e) {
       print('Erro ao obter limite: $e');
       return 0.0;
+    }
+  }
+
+  Future<void> emitirNotificacaoLimite(String categoria, double valor) async {
+    try {
+      final String userUid = _firebaseAuth.currentUser!.uid;
+      QuerySnapshot querySnapshot = await _mainCollection
+          .doc(userUid)
+          .collection('limites')
+          .where('categoria', isEqualTo: categoria)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        double limite = querySnapshot.docs[0]['limite'];
+        double totalDespesas = 0.0;
+        QuerySnapshot querySnapshotDespesas = await _mainCollection
+            .doc(userUid)
+            .collection('despesas')
+            .where('categoria', isEqualTo: categoria)
+            .get();
+        querySnapshotDespesas.docs.forEach((doc) {
+          totalDespesas += doc['valor'];
+        });
+
+        if (totalDespesas >= limite) {
+          _notificationService.showNotification(
+              title: 'Limite atingido!',
+              body:
+                  'O limite de $categoria foi atingido. Limite: R\$ $limite, Total de despesas: R\$ ${totalDespesas}');
+        } else {
+          emitirNotificacaoLimiteProximo(categoria, valor);
+        }
+      }
+    } catch (e) {
+      print('Erro ao emitir notificação de limite: $e');
+    }
+  }
+
+  Future<void> emitirNotificacaoLimiteProximo(
+      String categoria, double valor) async {
+    try {
+      final String userUid = _firebaseAuth.currentUser!.uid;
+      QuerySnapshot querySnapshot = await _mainCollection
+          .doc(userUid)
+          .collection('limites')
+          .where('categoria', isEqualTo: categoria)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        double limite = querySnapshot.docs[0]['limite'];
+        double totalDespesas = 0.0;
+        QuerySnapshot querySnapshotDespesas = await _mainCollection
+            .doc(userUid)
+            .collection('despesas')
+            .where('categoria', isEqualTo: categoria)
+            .get();
+        querySnapshotDespesas.docs.forEach((doc) {
+          totalDespesas += doc['valor'];
+        });
+
+        if (totalDespesas + valor >= limite) {
+          _notificationService.showNotification(
+              title: 'Limite próximo!',
+              body:
+                  'O limite de $categoria está próximo de ser atingido. Limite: R\$ $limite, Total de despesas: R\$ ${totalDespesas}');
+        }
+      }
+    } catch (e) {
+      print('Erro ao emitir notificação de limite próximo: $e');
     }
   }
 

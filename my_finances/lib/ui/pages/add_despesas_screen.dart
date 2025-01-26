@@ -38,6 +38,9 @@ class _AddDespesasScreenState extends State<AddDespesasScreen> {
         data: _dataController.text,
         categoria: _categoriaController.text,
       );
+      final limiteProvider = Provider.of<LimiteService>(context, listen: false);
+      await limiteProvider.emitirNotificacaoLimite(
+          _categoriaController.text, double.parse(_valorController.text));
       setState(() {});
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

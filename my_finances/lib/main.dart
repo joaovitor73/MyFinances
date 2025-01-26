@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:my_finances/services/limite_service.dart';
 import 'package:my_finances/ui/pages/add_despesas_screen.dart';
 import 'package:my_finances/ui/pages/add_limit_categoria.dart';
 import 'package:my_finances/ui/pages/add_receitas_screen.dart';
@@ -22,6 +23,8 @@ Future<void> main() async {
     print("Erro ao conectar com o Firebase: $e");
   }
   final configureProviders = await ConfigureProviders.createDependencyTree();
+  final LimiteService limiteService = LimiteService();
+  limiteService.initNotifications();
   runApp(
     MultiProvider(
       providers: configureProviders.providers,
