@@ -22,6 +22,8 @@ class _HomeState extends State<Home> {
     super.didChangeDependencies();
     final despesasProvider = Provider.of<DespesasStoreService>(context);
     despesasProvider.emitirDespesas();
+    final receitasProvider = Provider.of<ReceitaService>(context);
+    receitasProvider.emitirReceitas();
   }
 
   @override
